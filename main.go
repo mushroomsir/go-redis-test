@@ -31,9 +31,10 @@ func main() {
 
 	flag.Parse()
 	client := redis.NewClient(&redis.Options{
-		PoolSize: poolSize,
-		Addr:     host,
-		Password: password,
+		PoolSize:    poolSize,
+		Addr:        host,
+		Password:    password,
+		ReadTimeout: 5 * time.Second,
 	})
 	if clean {
 		err := client.FlushDb().Err()
@@ -152,9 +153,13 @@ func lrange(client *redis.Client) {
 			for {
 				select {
 				case m := <-msg:
-					err := client.LRange("redis:list:benchmark:test:"+m, 1, 100).Err()
+					result, err := client.LRange("redis:list:benchmark:test:"+m, 0, 99).Result()
 					if err != nil {
 						log.Println("LRANGE100: ", err)
+					} else {
+						if len(result) != 100 {
+							log.Println("LRANGE100 not 100, redis:list:benchmark:test:" + m)
+						}
 					}
 				default:
 					goto label
