@@ -36,7 +36,12 @@ func main() {
 		Password: password,
 	})
 	if clean {
-		client.FlushDb()
+		err := client.FlushDb().Err()
+		if err != nil {
+			log.Println("FlushDb: ", err.Error())
+		} else {
+			log.Println("FlushDb Completed")
+		}
 	}
 	set(client)
 	get(client)
@@ -59,7 +64,7 @@ func set(client *redis.Client) {
 				case m := <-msg:
 					err := client.Set("redis:benchmark:test:"+m, strings.Repeat("a", 2048), time.Minute).Err()
 					if err != nil {
-						log.Println(err)
+						log.Println("Set: ", err)
 					}
 				default:
 					goto label
@@ -87,7 +92,7 @@ func get(client *redis.Client) {
 				case m := <-msg:
 					err := client.Get("redis:benchmark:test:" + m).Err()
 					if err != nil {
-						log.Println(err)
+						log.Println("Get: ", err)
 					}
 				default:
 					goto label
@@ -120,7 +125,7 @@ func rpush(client *redis.Client) {
 					}
 					err := client.RPush("redis:list:benchmark:test:"+m, rpushs...).Err()
 					if err != nil {
-						log.Println(err)
+						log.Println("RPush100: ", err)
 					}
 				default:
 					goto label
@@ -131,13 +136,7 @@ func rpush(client *redis.Client) {
 		}()
 	}
 	wg.Wait()
-	log.Printf("RPUSH: %.2f requests per second\n", float64(requests)/time.Since(start).Seconds())
-	// for i := 0; i < requests; i++ {
-	// 	err := client.Expire("redis:list:benchmark:test:"+strconv.Itoa(i), time.Minute).Err()
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	}
-	// }
+	log.Printf("RPUSH100: %.2f requests per second\n", float64(requests)/time.Since(start).Seconds())
 }
 
 func lrange(client *redis.Client) {
@@ -155,7 +154,7 @@ func lrange(client *redis.Client) {
 				case m := <-msg:
 					err := client.LRange("redis:list:benchmark:test:"+m, 1, 100).Err()
 					if err != nil {
-						log.Println(err)
+						log.Println("LRANGE100: ", err)
 					}
 				default:
 					goto label
