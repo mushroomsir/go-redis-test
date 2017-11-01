@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -44,6 +45,7 @@ func main() {
 			log.Println("FlushDb Completed")
 		}
 	}
+	fmt.Printf("Parallel,Operation,QPS\n")
 	set(client)
 	get(client)
 	rpush(client)
@@ -76,7 +78,7 @@ func set(client *redis.Client) {
 		}()
 	}
 	wg.Wait()
-	log.Printf("SET: %.2f requests per second\n", float64(requests)/time.Since(start).Seconds())
+	fmt.Printf("%v,SET,%.2f\n", poolSize, float64(requests)/time.Since(start).Seconds())
 }
 func get(client *redis.Client) {
 	msg := make(chan string, requests)
@@ -104,7 +106,7 @@ func get(client *redis.Client) {
 		}()
 	}
 	wg.Wait()
-	log.Printf("GET: %.2f requests per second\n", float64(requests)/time.Since(start).Seconds())
+	fmt.Printf("%v,GET,%.2f\n", poolSize, float64(requests)/time.Since(start).Seconds())
 }
 
 func rpush(client *redis.Client) {
@@ -137,7 +139,7 @@ func rpush(client *redis.Client) {
 		}()
 	}
 	wg.Wait()
-	log.Printf("RPUSH100: %.2f requests per second\n", float64(requests)/time.Since(start).Seconds())
+	fmt.Printf("%v,RPUSH100,%.2f\n", poolSize, float64(requests)/time.Since(start).Seconds())
 }
 
 func lrange(client *redis.Client) {
@@ -170,5 +172,5 @@ func lrange(client *redis.Client) {
 		}()
 	}
 	wg.Wait()
-	log.Printf("LRANGE100: %.2f requests per second\n", float64(requests)/time.Since(start).Seconds())
+	fmt.Printf("%v,LRANGE100,%.2f\n", poolSize, float64(requests)/time.Since(start).Seconds())
 }

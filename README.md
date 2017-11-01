@@ -21,10 +21,11 @@ Usage of ./main:
 ```
 ### OUTPUT
 ```
-2017/10/31 17:53:50 SET: 41860.17 requests per second
-2017/10/31 17:53:52 GET: 53806.09 requests per second
-2017/10/31 17:54:10 RPUSH: 5666.57 requests per second
-2017/10/31 17:54:17 LRANGE100: 26492.89 requests per second
+Parallel,Operation,QPS
+100,SET,35676.05
+100,GET,46210.70
+100,RPUSH100,3897.68
+100,LRANGE100,26759.41
 ```
 
 ## Licenses
